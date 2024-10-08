@@ -1,7 +1,7 @@
 import java.util.Scanner;
 
 // V0.0.2 
-public class hangman {
+public class Hangman {
     public static void main(String[] args) {
         /* 
          * Things we have to do:
