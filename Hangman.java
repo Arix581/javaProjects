@@ -1,21 +1,41 @@
+import java.util.Random;
 import java.util.Scanner;
 
-// V0.0.3
+// V0.0.4
 public class Hangman {
     public static void main(String[] args) {
-        //Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
         System.out.println("Welcome to Hangman!");
         
-        // set the visible word to all underscores
-        String secretWord = "This is a hangman game in java!".toLowerCase();
+        // Constant assignment
+        String[] WORDS = new String[] {"test", "words", "here", "more", "items", "string"};
+        String[] PHRASES = new String[] {"This is a hangman game in java!", "This is another test string."};
+        
+        while (true) {
+            
+            playGame(WORDS, PHRASES);
+
+            // Play again?
+            System.out.println("Would you like to play again?");
+            if (!scanner.nextLine().toLowerCase().startsWith("y")) {
+                break;
+            }
+        }
+
+        System.out.println("Goodbye!");
+    }
+
+    public static void playGame(String[] WORDS, String[] PHRASES) {
+        // set the visible and secret words
+        String secretWord = choosePhrase(WORDS, PHRASES);
         String visibleWord = secretWord.replaceAll("(?i)[qwertyuiopasdfghjklzxcvbnm]", "_"); 
         
         // Set up basic variables
         int lives = 6;
         String guesses = "";
         boolean victory = false;
-        
+
         while (true) {
             // Display the board
             System.out.println("You have " + lives + " lives.");
@@ -31,21 +51,19 @@ public class Hangman {
                 visibleWord = updateVisibleWord(secretWord, visibleWord, guess);
             } else { // Is not in the secret word
                 lives--;
-                System.out.println(guess + " is not in the secret word.");
+                System.out.println(guess + " is not in the secret word, you lost a life.");
             }
 
             // Loss detection.
             if (lives < 1) { 
+                // Ded :(
                 victory = false;
                 break;
-            } else {
-                System.out.println("You now have " + lives + " lives remaining.");
             }
 
             // Win detection
             if (!visibleWord.contains("_")) {
-                // No unguessed letters
-                // so you win.
+                // No unguessed letters so you win.
                 victory = true;
                 break;
             }
@@ -54,12 +72,37 @@ public class Hangman {
         
         // Have different win or loss texts.
         if (victory) {
+            System.out.println("The secret word was " + secretWord);
             System.out.println("You won! Good job!");
         } else {
             System.out.println("You lost. The secret word was: \"" + secretWord + "\". Better luck next time!");
         }
+    }
 
-        // Play again?
+    public static String choosePhrase(String[] words, String[] phrases) {
+        String toReturn = "";
+        Random random = new Random();
+        if (random.nextBoolean()) {
+            // Do the phrases
+            //System.out.println("DEBUG [choosePhrase]: Chose to use phrases");
+            toReturn = phrases[random.nextInt(phrases.length)];
+        } else {
+            // Do the make a phrase
+            //System.out.println("DEBUG [choosePhrase]: Chose to use words");
+            toReturn = generatePhrase(words);
+        }
+
+        return toReturn.toLowerCase();
+    }
+    
+    private static String generatePhrase(String [] words) {
+        String toReturn = "";
+        Random random = new Random();
+        for (int i = 0; i < 3; i++) {
+            int chosen = random.nextInt(words.length);
+            toReturn += words[chosen] + " ";
+        }
+        return toReturn;
     }
 
     private static String updateVisibleWord(String secretWord, String visibleWord, String guess) {
