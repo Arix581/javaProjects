@@ -1,4 +1,8 @@
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
 import java.util.Random;
 
 public class TranslatorGame {
@@ -7,6 +11,7 @@ public class TranslatorGame {
         
         String letters = "abcdefghijklmnopqrstuvwxyz";
 
+        boolean continuePlaying = true;
         /*
          * TODO
          * Modes:
@@ -14,7 +19,7 @@ public class TranslatorGame {
          *   Lives
          *   Practice (allows you to do one set)
          */
-        while (true) {
+        while (continuePlaying) {
             System.out.println();
             System.out.println("Welcome to Translator! This is to help you with A-Z 1-26 Codes! What mode would you like?");
             System.out.println("There are three modes: Endless, Lives, and Practice, or you could quit.");
@@ -23,26 +28,27 @@ public class TranslatorGame {
                 case "e":
                     // Endless Mode
                     endlessMode(scanner, letters);
-                    System.out.println("Returning to main menu...");
                     break;
                 case "l":
                     // Lives Mode
                     livesMode(scanner, letters, 3);
-                    System.out.println("Returning to main menu...");
                     break;
                 case "p":
                     // Practice Mode
-                    //practiceMode();
-                    System.out.println("Returning to main menu...");
+                    practiceMode(scanner, letters);
+                    break;
+                case "q":
+                    continuePlaying = false;
                     break;
                 default:
+                    System.out.println("Mode load failed. Please try again.");
                     break;
             }
+            System.out.println("Returning to main menu...");
         }
     }
 
     private static int endlessMode(Scanner scanner, String letters) {
-        System.out.println("TODO: Implement Endless Mode");
         boolean usingLettters = getUsingLetters(scanner);
         int points = 0;
         while (true) {
@@ -60,7 +66,6 @@ public class TranslatorGame {
     }
 
     private static int livesMode(Scanner scanner, String letters, int lives) {
-        System.out.println("TODO: Implement Lives Mode");
         boolean usingLettters = getUsingLetters(scanner);
         int points = 0;
         for (int i = 1; i <= lives; i++) {
@@ -81,16 +86,12 @@ public class TranslatorGame {
     }
     
     private static void practiceMode(Scanner scanner, String letters) {
-        System.out.println("TODO: Implement Practic Mode");
-        /*
-         * TODO:
-         * run it
-         * return all mess ups.
-         */
-
+        System.out.println("Prints only first character");
         // Get desired string
         System.out.println("Welcome to practice mode. Input all characters you want to practice.");
-        String practice = scanner.nextLine().toLowerCase().trim();
+        String practice = scanner.nextLine().trim().toLowerCase();
+        char[] chars = practice.toCharArray();
+        List<char[]> practiceList = Arrays.asList(chars);
 
         // Get letters or numbers
         boolean usingLettters = getUsingLetters(scanner);
@@ -101,11 +102,40 @@ public class TranslatorGame {
         scanner.nextLine();
 
         // Make a mistakes string and have concatinated to the end all the mistakes
+        List<char[]> mistakes = new ArrayList<>();
+        
+        // Shuffle and dispense all the letters.
+        for (int i = 0; i < repetitions; i++) {
+            Collections.shuffle(practiceList);
+            for (int j = 0; j < practiceList.size() + 1; j++) {
+                boolean correct = false;
+                if (usingLettters) {
+                    correct = guessFromSetLetter(scanner, letters, String.valueOf(practiceList.get(j))); 
+                } else {
+                    correct = guessFromSetNumber(scanner, letters, String.valueOf(practiceList.get(j)));
+                }
+                if (!correct) {
+                    mistakes.add(practiceList.get(j));
+                }
+            }
+        }
+
+        // Ending mistake handling
+        if (mistakes.size() == 0) { // No mistakes
+            System.out.println("You made no mistakes! Good job!");
+        } else { // Yes mistakes
+            System.out.println("You made " + mistakes.size() + " mistakes. Here they are: ");
+            for (char[] character : mistakes) {
+                System.out.print(character);
+            }
+            System.out.println();
+        }
+
     }
 
     private static boolean getUsingLetters(Scanner scanner) {
         System.out.println("Would you like to go to letters or numbers");
-        return scanner.nextLine().toLowerCase().startsWith("l");
+        return !scanner.nextLine().toLowerCase().startsWith("l");
     }
 
     private static boolean guessFromRandomNumber(Scanner scanner, String letters) {
